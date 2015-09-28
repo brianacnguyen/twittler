@@ -4,22 +4,206 @@
     <script src="jquery.js"></script>
     <script src="data_generator.js"></script>
   </head>
-  <body>
+  <body id='body'>
+    <div id='title'></div>
+    <div class='scroll' align='center'>
+        <table id='tweets'>
+        </table>
+    </div>
     <script>
 
       $(document).ready(function(){
-        var $body = $('body');
-        $body.html('');
+        $('html').css('height', '100%'); 
 
-        var index = streams.home.length - 1;
-        while(index >= 0){
-          var tweet = streams.home[index];
-          var $tweet = $('<div></div>');
-          $tweet.text('@' + tweet.user + ': ' + tweet.message);
-          $tweet.appendTo($body);
-          index -= 1;
-        }
+        //setting up tweet table
+        
+        var $tweets = $('#tweets');
+        $tweets.css('padding-top','20px');
 
+        //limiting tweet updates to a scroll table 
+        
+        var $scroll = $('.scroll');
+        $scroll.css('overflow', 'scroll');
+        $scroll.css('height', '450px');
+
+        //styling background 
+        
+        var $body = $('#body');
+        $body.css('padding-top', '40px');
+        $body.css('background-color', 'white');
+        $body.css('background-image', 'radial-gradient(#FFFFFF, #343132)');
+        $body.css('background-repeat', 'no-repeat');
+        $body.css('background-attachment', 'fixed');
+        $body.css('height','100%');
+
+        //styling title 
+        
+        var $title = $('#title');
+        $title.html('');
+        var fontFam="Courier New", Courier, monospace;
+
+        //setting up, styling, and adding "Twittler" to title
+        
+        var $mainTitle=$('<div></div>');
+        $mainTitle.text('Twittler');
+        $mainTitle.css('color', '#FEFCFF');
+        $mainTitle.css('text-align', 'center');
+        $mainTitle.css('text-shadow', '1px 2px 3px rgba(0, 0, 0, .6)')
+        $mainTitle.css('font-size', '40px');
+        $mainTitle.css('font-family', fontFam);
+        $mainTitle.attr('id', 'mainTitle');
+        $mainTitle.appendTo($title);
+
+        //setting up, styling, and adding subtitle of page. Will need to change with user's feed 
+        
+        var $subTitle=$('<div></div>');
+        $subTitle.text('News Feed');
+        $subTitle.css('color', '#FEFCFF');
+        $subTitle.css('text-align', 'center');
+        $subTitle.css('text-shadow', '1px 2px 3px rgba(0, 0, 0, .6)')
+        $subTitle.css('font-size', '20px')
+        $subTitle.css('font-family', fontFam);
+        $subTitle.attr('id', 'subTitle');
+        $subTitle.appendTo($title);
+
+        //function to grab and format hours
+
+        var timeFormat = function(time) {
+          var hour = time.getHours();
+          var ampm = hour >= 12 ? 'pm' : 'am';
+          if (hour > 12) {
+            hour = hour - 12;
+          };
+          if (hour < 10) {
+            hour = '0' + hour;
+          };
+          var minute = time.getMinutes();
+          if (minute < 10) {
+            minute = '0' + minute;
+          };
+          return hour + ':' + minute + ampm;
+          };
+        
+        //function to style each tweet
+        var styleTweet = function(element){
+          element.css('width','1000px');
+          element.css('height', '25px');
+          element.css('background-color', 'rgba(255,255,255,0.15');
+          element.css('font-family', fontFam);
+          element.css('font-size', '13px');
+        };
+
+        //functions to update tweets per 4 seconds
+        var refreshTweets = setInterval(function() {
+          return postTweets(streams.home)
+        }, 4000);
+
+        //function to show all POSTED tweets of either everyone or an individual user
+        
+        var postTweets = function(feed){
+          $tweets.html('');
+          var index = feed.length - 1;
+          while(index >= 0){
+            
+            //add padding to every tweet
+
+            var $pad=$('<div style="height:4px;"></div>');
+            $pad.appendTo($tweets);
+            var tweet = feed[index];
+            
+            //setting up, styling every tweet, and posting them to #tweets
+
+            var $wholeTweet = $('<tr></tr>');
+            styleTweet($wholeTweet);
+
+            //creating user buttons, styling, and click/hover behavior
+
+            var currentUser = tweet.user; 
+            var $user = $('<td><a></a></td>');
+            $user.css('text-align', 'right');
+            $user.attr('id', currentUser)
+            $user.on('mouseenter', function(){
+              $(this).css('font-weight', 'bold');
+              $(this).css('color', 'white');
+              $(this).css('text-decoration', 'underline');
+            });
+            $user.on('mouseleave', function(){
+              $(this).css('font-weight', 'normal');
+              $(this).css('color', 'black');
+              $(this).css('text-decoration', 'none');
+            });
+            
+            //directing to user's timeline when click on user
+
+            $user.on('click', function() {
+              var user = ($(this).attr('id'));
+
+              //changing Subtitle
+              $('#subTitle').text(user + "'" + 's timeline');
+
+              //Adding a home button to go back to News Feed
+              var $home=$('<div></div>');
+              $home.text('Home');
+              $home.css('color', '#D1D0CE');
+              $home.css('display', 'block');
+              $home.css('text-align', 'center');
+              $home.css('text-shadow', '1px 2px 3px rgba(0, 0, 0, .6)')
+              $home.css('font-size', '15px')
+              $home.css('font-family', fontFam);
+              $home.attr('id', 'home');
+              $home.on('click', function() {
+                $(this).css('display', 'none');
+                $('#subTitle').text('News Feed');
+                clearInterval(refreshUserTweets);
+                clearInterval(refreshTweets);
+                postTweets(streams.home);
+                var refreshTweets = setInterval(function() {
+                return postTweets(streams.home)
+                }, 4000);
+                refreshTweets
+              });
+              $home.on('mouseenter', function(){
+                $(this).css('font-weight', 'bold');
+                $(this).css('color', 'black');
+                $(this).css('text-decoration', 'underline');
+              });
+              $home.on('mouseleave', function(){
+                $(this).css('font-weight', 'normal');
+                $(this).css('color', '#D1D0CE');
+                $(this).css('text-decoration', 'none');
+              });
+              $home.appendTo($title);
+
+
+              clearInterval(refreshTweets); 
+              postTweets(streams.users[user]);
+              var refreshUserTweets = setInterval(function() {
+                return postTweets(streams.users[user])
+              }, 4000);
+              refreshUserTweets;
+            });
+
+            // adding user to tweet 
+
+            $user.text('@' + currentUser + ': ');
+            $user.appendTo($wholeTweet);
+
+            //adding message and time to tweet
+
+            var $tweet = $('<td></td>');
+            var time = timeFormat(tweet.created_at);
+            $tweet.text(tweet.message + ' (tweeted at ' + time + ')');
+            $tweet.appendTo($wholeTweet);
+            $wholeTweet.appendTo($tweets);
+            index -= 1;
+          }; 
+        };
+
+        //post previous posted tweets
+        postTweets(streams.home);
+        
+        //periodically adding new tweets to feed
+        refreshTweets; 
       });
 
     </script>
