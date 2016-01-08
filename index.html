@@ -107,14 +107,11 @@
             
             //add padding to every tweet
 
-            var $pad=$('<div style="height:4px;"></div>');
-            $pad.appendTo($tweets);
             var tweet = feed[index];
             
             //setting up, styling every tweet, and posting them to #tweets
 
             var $wholeTweet = $('<tr></tr>');
-            styleTweet($wholeTweet);
 
             //creating user buttons, styling, and click/hover behavior
 
@@ -135,53 +132,7 @@
             
             //directing to user's timeline when click on user
 
-            $user.on('click', function() {
-              var user = ($(this).attr('id'));
 
-              //changing Subtitle
-              $('#subTitle').text(user + "'" + 's timeline');
-
-              //Adding a home button to go back to News Feed
-              var $home=$('<div></div>');
-              $home.text('Home');
-              $home.css('color', '#D1D0CE');
-              $home.css('display', 'block');
-              $home.css('text-align', 'center');
-              $home.css('text-shadow', '1px 2px 3px rgba(0, 0, 0, .6)')
-              $home.css('font-size', '15px')
-              $home.css('font-family', fontFam);
-              $home.attr('id', 'home');
-              $home.on('click', function() {
-                $(this).css('display', 'none');
-                $('#subTitle').text('News Feed');
-                clearInterval(refreshUserTweets);
-                clearInterval(refreshTweets);
-                postTweets(streams.home);
-                var refreshTweets = setInterval(function() {
-                return postTweets(streams.home)
-                }, 4000);
-                refreshTweets
-              });
-              $home.on('mouseenter', function(){
-                $(this).css('font-weight', 'bold');
-                $(this).css('color', 'black');
-                $(this).css('text-decoration', 'underline');
-              });
-              $home.on('mouseleave', function(){
-                $(this).css('font-weight', 'normal');
-                $(this).css('color', '#D1D0CE');
-                $(this).css('text-decoration', 'none');
-              });
-              $home.appendTo($title);
-
-
-              clearInterval(refreshTweets); 
-              postTweets(streams.users[user]);
-              var refreshUserTweets = setInterval(function() {
-                return postTweets(streams.users[user])
-              }, 4000);
-              refreshUserTweets;
-            });
 
             // adding user to tweet 
 
